@@ -6,18 +6,18 @@ bot.command :owstats do |event, user, option, platform="pc", region="eu"|
 	uri = URI('http://ow-api.herokuapp.com/stats/'+platform+'/'+region+'/'+user)
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
-
+	result = "@#{event.user.name}"
 	if(option == "played")
-		"```Quickplay: #{obj["stats"]["game"]["quickplay"][3]["value"]}\nCompetitive: #{obj["stats"]["game"]["competitive"][4]["value"]}```"
+		result += "```Quickplay: #{obj["stats"]["game"]["quickplay"][3]["value"]}\nCompetitive: #{obj["stats"]["game"]["competitive"][4]["value"]}```"
 	elsif (option == "winrate")
 		games_played = obj["stats"]["game"]["competitive"][0]["value"].to_f
 		games_won = obj["stats"]["game"]["competitive"][1]["value"].to_f
 		ratio = games_won/games_played
 		percent = ratio*100;
 		percent_format = "%5.2f" % percent
-		"`Competitive: #{percent_format}% winrate`"
+		result += "`Competitive: #{percent_format}% winrate`"
 	end
-		
+	result
 end
 
 bot.command :random do |event, min, max|
