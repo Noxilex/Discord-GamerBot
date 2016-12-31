@@ -50,13 +50,25 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 		format_champs[champ_id] = champ_name
 	end
 	
-
+	#Gets player ID
 	uri = URI('https://euw.api.pvp.net/api/lol/'+region+'/v1.4/summoner/by-name/'+user+'?api_key='+api_key)
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
-	puts obj.to_s
 	player_id = obj[user.downcase]['id']
-	puts player_id
+	
+	#Gets top 3 best champions
+	top3 = JSON.parse(Net::HTTP.get_response(URI('https://euw.api.pvp.net/championmastery/location/EUW1/player/'+player_id+'/topchampions?api_key='+api_key)).body)
+	top3_a = Hash.new
+	top3.each do |champion|
+		id = champion['championId'] 
+		points = champion['championPoints']
+		level = champion['championLevel']
+		last_played = champion['lastPlayTime']
+		top3_a[id] = {"level" => level, "points" => points, "last_played" => last_played}
+	end
+	puts top3_a.to_s
+
+	#Gets stats from associated season + player
 	season = '6'
 	uri2 = URI('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/'+player_id.to_s+'/ranked?season=SEASON201'+season+'&api_key='+api_key)
 	res2 = Net::HTTP.get_response(uri2)
@@ -65,7 +77,7 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 	result = "#{event.user.mention}\n"
 	result += "```Player: #{user}\n"
 
-	#Most played champions
+	#Champions stats for respective season
 	obj2['champions'].each do |champion|
 		stats = champion['stats']
 		kills = stats['totalChampionKills'].to_f
