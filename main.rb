@@ -73,7 +73,7 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 		deaths = stats['totalDeathsPerSession'].to_f
 		kda = ((kills+assists)/deaths)
 		kda_format = "%5.2f" % kda
-		result += "Champion: #{champs[champion['id']]}\n";
+		result += "Champion: #{format_champs[champion['id']]}\n";
 		result += "\tKDA: #{kda_format}\n"
 	end
 	
