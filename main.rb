@@ -36,16 +36,17 @@ bot.command :lolstats do |event, option, user, region="eu"|
 	result = "#{event.user.mention}\n"
 	result += "```Player: #{user}\n"
 	
-	obj2['champions'].each do |id, stats| 
-		uri_champ = URI('https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion/#{id}?api_key='+api_key)
+	obj2['champions'].each do |champion| 
+		uri_champ = URI('https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion/'+champion['id'].to_s+'?api_key='+api_key)
 		res_champ = Net::HTTP.get_response(uri_champ)
 		obj_champ = JSON.parse(res_champ.body)
-		kills = stats['totalChampionKills']
-		assists = stats['totalAssists']
-		deaths = stats['totalDeathsPerSession']
-		kda = ((kills+assists)/deaths).to_f
+		stats = champion['stats']
+		kills = stats['totalChampionKills'].to_f
+		assists = stats['totalAssists'].to_f
+		deaths = stats['totalDeathsPerSession'].to_f
+		kda = ((kills+assists)/deaths)
 		result += "Champion: #{obj_champ['name']}\n";
-		result += "KDA: #{kda}"
+		result += "\tKDA: #{kda}\n"
 	end
 	
 	result += "```"
