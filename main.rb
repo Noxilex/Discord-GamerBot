@@ -45,8 +45,9 @@ bot.command :lolstats do |event, option, user, region="eu"|
 		assists = stats['totalAssists'].to_f
 		deaths = stats['totalDeathsPerSession'].to_f
 		kda = ((kills+assists)/deaths)
+		kda_format = "%5.2f" % percent
 		result += "Champion: #{obj_champ['name']}\n";
-		result += "\tKDA: #{kda}\n"
+		result += "\tKDA: #{kda_format}\n"
 	end
 	
 	result += "```"
