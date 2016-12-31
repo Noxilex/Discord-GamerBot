@@ -24,14 +24,30 @@ bot.command(:owstats, channels: ["#bot_testing", "#spam", "#general"])  do |even
 end
 
 bot.command :lolstats do |event, option, user, region="eu"|
-	api_key = "RGAPI-1048F028-BC6A-46DD-A599-4616B04AD861"
-	url = "https://euw.api.pvp.net/api/lol/"+region+"/v1.4/summoner/by-name/"+user+"?api_key="+api_key
-	uri = URI('http://ow-api.herokuapp.com/stats/'+platform+'/'+region+'/'+user.sub('#','-'))
+	api_key = configatron.lolAPI
+	uri = URI('https://euw.api.pvp.net/api/lol/'+region+'/v1.4/summoner/by-name/'+user+'?api_key='api_key)
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
+	player_id = obj['id'];
+	season = 6
+	uri2 = URI('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/'+player_id+'/ranked?season=SEASON201'+season+'&api_key='+api_key)
+	res2 = Net::HTTP.get_response(uri2)
+	obj2 = JSON.parse(res2.body)
 	result = "#{event.user.mention}\n"
 	result += "```Player: #{user}\n"
-
+	
+	obj['champions'].each do |id, stats| 
+		uri_champ = URI('https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion/'+40+'?api_key='+api_key)
+		res_champ = Net::HTTP.get_response(uri_champ)
+		obj_champ = JSON.parse(res_champ.body)
+		kills = stats['totalChampionKills']
+		assists = stats['totalAssists']
+		deaths = stats['totalDeathsPerSession']
+		kda = ((kills+assists)/deaths).to_f
+		result += "Champion: #{obj_champ['name']}\n";
+		result += "KDA: #{kda}"
+	end
+	
 	result += "```"
 end
 
