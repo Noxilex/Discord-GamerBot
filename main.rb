@@ -1,7 +1,7 @@
 require 'discordrb'
 bot = Discordrb::Commands::CommandBot.new token: 'MjYzMjQ2NDkzNTM4ODQ0Njgz.C0PPyQ.udDki5kMbF5B0QSdVLOOCfi61Vc', client_id: 263246493538844683, prefix: '!'
 
-bot.command(:owstats, in: ["#bot_testing", "#spam", "#general"]  do |event, option, user, platform="pc", region="eu"|
+bot.command(:owstats, in: ["#bot_testing", "#spam", "#general"])  do |event, option, user, platform="pc", region="eu"|
 	uri = URI('http://ow-api.herokuapp.com/stats/'+platform+'/'+region+'/'+user.sub('#','-'))
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
