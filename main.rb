@@ -23,8 +23,23 @@ bot.command(:owstats, channels: ["#bot_testing", "#spam", "#general"])  do |even
 	result += "```"
 end
 
+bot.command(:loltest) do |event, user, option, region="euw"|
+	api_key = configatron.lolAPI
+	
+	#Puts champions id in an array
+	champs = JSON.parse(Net::HTTP.get_response(URI('https://global.api.pvp.net/api/lol/static-data/'+region+'/v1.2/champion?api_key='+api_key)).body)
+	format_champs[]
+	champs['data'].each do |champ|
+		format_champs << [champ['id'], champ['name']]
+	end
+	puts format_champs
+end
+
 bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |event, user, option, region="euw"|
 	api_key = configatron.lolAPI
+
+	
+
 	uri = URI('https://euw.api.pvp.net/api/lol/'+region+'/v1.4/summoner/by-name/'+user+'?api_key='+api_key)
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
@@ -37,6 +52,8 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 	obj2 = JSON.parse(res2.body)
 	result = "#{event.user.mention}\n"
 	result += "```Player: #{user}\n"
+	#Most played champions
+
 	
 	obj2['champions'].each do |champion| 
 		uri_champ = URI('https://global.api.pvp.net/api/lol/static-data/euw/v1.2/champion/'+champion['id'].to_s+'?api_key='+api_key)
