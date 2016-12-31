@@ -4,7 +4,7 @@ require_relative 'config.rb'
 
 bot = Discordrb::Commands::CommandBot.new token: configatron.token, client_id: 263246493538844683, prefix: '!'
 
-bot.command(:owstats, channels: ["#bot_testing", "#spam", "#general"])  do |event, option, user, platform="pc", region="eu"|
+bot.command(:owstats, channels: ["#bot_testing", "#spam", "#general"])  do |event, user, option, platform="pc", region="eu"|
 	uri = URI('http://ow-api.herokuapp.com/stats/'+platform+'/'+region+'/'+user.sub('#','-'))
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
@@ -23,14 +23,16 @@ bot.command(:owstats, channels: ["#bot_testing", "#spam", "#general"])  do |even
 	result += "```"
 end
 
-bot.command :lolstats do |event, option, user, region="eu"|
+bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |event, user, option, region="euw"|
 	api_key = configatron.lolAPI
 	uri = URI('https://euw.api.pvp.net/api/lol/'+region+'/v1.4/summoner/by-name/'+user+'?api_key='+api_key)
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
-	player_id = obj['id'];
+	puts obj.to_s
+	player_id = obj[user.downcase]['id']
+	puts player_id
 	season = '6'
-	uri2 = URI('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/20411239/ranked?season=SEASON2016&api_key='+api_key)
+	uri2 = URI('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/'+player_id.to_s+'/ranked?season=SEASON2016&api_key='+api_key)
 	res2 = Net::HTTP.get_response(uri2)
 	obj2 = JSON.parse(res2.body)
 	result = "#{event.user.mention}\n"
