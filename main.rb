@@ -28,11 +28,11 @@ bot.command(:loltest) do |event, user, option, region="euw"|
 	
 	#Puts champions id in an array
 	champs = JSON.parse(Net::HTTP.get_response(URI('https://global.api.pvp.net/api/lol/static-data/'+region+'/v1.2/champion?api_key='+api_key)).body)
-	format_champs[]
+	format_champs = Array.new
 	champs['data'].each do |champ|
-		format_champs << [champ['id'], champ['name']]
+		format_champs << { "id" => champ['id'], "name" => champ['name'] }
 	end
-	puts format_champs
+	format_champs
 end
 
 bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |event, user, option, region="euw"|
