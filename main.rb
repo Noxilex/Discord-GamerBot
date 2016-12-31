@@ -51,20 +51,21 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 	end
 	
 	#Gets player ID
-	uri = URI('https://euw.api.pvp.net/api/lol/'+region+'/v1.4/summoner/by-name/'+user+'?api_key='+api_key)
+	encoded_user = URI.encode_www_form_component(user)
+	uri = URI('https://euw.api.pvp.net/api/lol/'+region+'/v1.4/summoner/by-name/'+encoded_user+'?api_key='+api_key)
 	res = Net::HTTP.get_response(uri)
 	obj = JSON.parse(res.body)
 	player_id = obj[user.downcase]['id']
 	
 	#Gets top 3 best champions
-	top3 = JSON.parse(Net::HTTP.get_response(URI('https://euw.api.pvp.net/championmastery/location/EUW1/player/'+player_id+'/topchampions?api_key='+api_key)).body)
+	top3 = JSON.parse(Net::HTTP.get_response(URI('https://euw.api.pvp.net/championmastery/location/EUW1/player/'+player_id.to_s+'/topchampions?api_key='+api_key)).body)
 	top3_a = Hash.new
 	top3.each do |champion|
 		id = champion['championId'] 
 		points = champion['championPoints']
 		level = champion['championLevel']
 		last_played = champion['lastPlayTime']
-		top3_a[id] = {"level" => level, "points" => points, "last_played" => last_played}
+		top3_a[id] = {"name" => format_champs[id], "level" => level, "points" => points, "last_played" => last_played}
 	end
 	puts top3_a.to_s
 
@@ -72,21 +73,27 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 	season = '6'
 	uri2 = URI('https://euw.api.pvp.net/api/lol/euw/v1.3/stats/by-summoner/'+player_id.to_s+'/ranked?season=SEASON201'+season+'&api_key='+api_key)
 	res2 = Net::HTTP.get_response(uri2)
-	obj2 = JSON.parse(res2.body)
+	s = JSON.parse(res2.body)
 
 	result = "#{event.user.mention}\n"
 	result += "```Player: #{user}\n"
 
 	#Champions stats for respective season
-	obj2['champions'].each do |champion|
-		stats = champion['stats']
-		kills = stats['totalChampionKills'].to_f
-		assists = stats['totalAssists'].to_f
-		deaths = stats['totalDeathsPerSession'].to_f
-		kda = ((kills+assists)/deaths)
-		kda_format = "%5.2f" % kda
-		result += "Champion: #{format_champs[champion['id']]}\n";
-		result += "\tKDA: #{kda_format}\n"
+	s['champions'].each do |champion|
+		id = champion['id']
+		if top3_a.has_key?(id)
+			current = top3_a[id]
+			stats = champion['stats']
+			kills = stats['totalChampionKills'].to_f
+			assists = stats['totalAssists'].to_f
+			deaths = stats['totalDeathsPerSession'].to_f
+			kda = ((kills+assists)/deaths)
+			kda_format = "%5.2f" % kda
+			result += "Champion: #{current['name']}\n";
+			result += "\tLevel: #{current['level']}\n";
+			result += "\tPoints: #{current['points']}\n";
+			result += "\tKDA: #{kda_format}\n";
+		end
 	end
 	
 	result += "```"
