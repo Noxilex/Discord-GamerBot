@@ -13,12 +13,25 @@ bot.command(:owstats, channels: ["#bot_testing", "#spam", "#general"])  do |even
 	if(option == "played")
 		result += "Quickplay: #{obj["stats"]["game"]["quickplay"][3]["value"]}\nCompetitive: #{obj["stats"]["game"]["competitive"][4]["value"]}"
 	elsif (option == "winrate")
-		games_played = obj["stats"]["game"]["competitive"][0]["value"].to_f
+		#games_played = obj["stats"]["game"]["competitive"][0]["value"].to_f
+		miscellanous = obj["stats"]["miscellaneous"]["competitive"]
+		games_lost = 0
+		miscellanous.each {|x|
+			title= x["title"]
+			value= x["value"]
+			if(title == "Games Lost")
+				games_lost = value.to_f;
+			end
+		}
 		games_won = obj["stats"]["game"]["competitive"][1]["value"].to_f
-		ratio = games_won/games_played
+		#puts "Lost: #{games_lost}"
+		#puts "Won: #{games_won}"
+		ratio = games_won/(games_won+games_lost)
 		percent = ratio*100;
 		percent_format = "%5.2f" % percent
-		result += "Competitive: #{percent_format}% winrate"
+		result += "Competitive: #{percent_format}% winrate\n"
+		result += "Games won: #{games_won.to_i}\n"
+		result += "Games lost: #{games_lost.to_i}"
 	end
 	result += "```"
 end
@@ -96,7 +109,7 @@ bot.command(:lolstats, channels: ["#bot_testing", "#spam", "#general"]) do |even
 		end
 	end
 	
-	result += "```"
+	result+= "```"
 end
 
 bot.command :random do |event, min, max|
