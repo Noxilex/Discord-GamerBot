@@ -1,4 +1,4 @@
-# InfoBot
+# Discord GamerBot
 
-Discord bot to print informations using APIs of different games. 
-Mainly stats about players 
+Discord bot which prints informations by fetching APIs of different games. 
+The main goal of this bot is to prompt players with their in-game stats.  
